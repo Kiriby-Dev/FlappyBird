@@ -4,11 +4,13 @@ public class Player : MonoBehaviour
 {
     private SpriteRenderer spriteRenderer;
 
+    [SerializeField] private GameManager gameManager;
+
     [SerializeField] private float gravity = -9.8f;
     [SerializeField] private float stregth = 5f;
     [SerializeField] private Sprite[] sprites;
 
-    private int spriteIndex;
+    private int spriteIndex = 0;
     private Vector3 direction;
 
     private void Awake()
@@ -19,6 +21,14 @@ public class Player : MonoBehaviour
     private void Start()
     {
         InvokeRepeating(nameof(AnimateSprite), 0.15f, 0.15f);
+    }
+
+    private void OnEnable()
+    {
+        Vector3 position = transform.position;
+        position.y = 0f;
+        transform.position = position;
+        direction = Vector3.zero;
     }
 
     private void Update()
@@ -34,10 +44,18 @@ public class Player : MonoBehaviour
     private void AnimateSprite() { 
         spriteIndex++;
 
-        if (spriteIndex > sprites.Length) { 
+        if (spriteIndex >= sprites.Length) { 
             spriteIndex = 0;
         }
 
         spriteRenderer.sprite = sprites[spriteIndex];
+    }
+
+    private void OnTriggerEnter2D(Collider2D collision){
+        if (collision.gameObject.tag == "Obstacle") {
+            gameManager.GameOver();
+        } else if (collision.gameObject.tag == "Scoring") {
+            gameManager.IncreaseScore();
+        }
     }
 }
